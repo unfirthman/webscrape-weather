@@ -1,0 +1,33 @@
+from bs4 import BeautifulSoup
+import requests
+import numpy as np
+import datetime
+import pandas as pd
+
+
+### Detailed Forcast GET
+page = requests.get("https://forecast.weather.gov/MapClick.php?lat=40.68381561257744&lon=-73.94813485295386")
+soup = BeautifulSoup(page.content, "html.parser")
+detailed_forecast = soup.find_all(id="detailed-forecast-body")
+##### 
+#### Headings GET
+headings = soup.find_all(class_="col-sm-2 forecast-label")
+
+#### Days and general times
+day_headers = []
+for day in headings:
+    header = day.get_text()
+    day_headers.append(header)
+
+### Forecast Text
+forecast_text = []
+for cast in soup.find_all(class_="col-sm-10 forecast-text"):
+    forecast = cast.get_text()
+    forecast_text.append(forecast)
+
+#### Forecast CHART
+
+full_forecast_chart = {"Day": day_headers, "Forecast": forecast_text}
+
+forecast_df = pd.DataFrame.from_dict(full_forecast_chart)
+print(forecast_df)
